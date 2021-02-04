@@ -1,38 +1,36 @@
 import * as THREE from 'three';
-import Angle from './Utils/Angle';
-import Random from './Utils/Random';
+import Angle from './utils/Angle';
+import Random from './utils/Random';
 
-export interface GalaxyParameters {
-	starCount: number;
-	particleSize: number;
-	radius: number;
-	branches: number;
-	spin: number;
-	distribution: number;
-	innerColor: number;
-	outerColor: number;
-}
 const textureLoader = new THREE.TextureLoader();
 const starTexture = textureLoader.load('/textures/particles/1.png');
 
 export default class Galaxy extends THREE.Points {
 	public spinSpeed: number;
+	public starCount: number;
+	public radius: number;
+	public branchCount: number;
+	public spinAmount: number;
+	public distribution: number;
+	public innerColor: THREE.Color;
+	public outercolor: THREE.Color;
+
 	public constructor(settings?: Partial<GalaxyParameters>) {
 		const {
 			starCount,
 			particleSize,
 			radius,
-			branches,
-			spin,
+			branchCount,
+			spinAmount,
 			distribution,
-			innerColor,
-			outerColor,
+			innerColor: insideColor,
+			outerColor: outsideColor,
 		} = {
-			...DEFAULTS,
+			...Galaxy.DEFAULTS,
 			...settings,
 		};
-		const insideColor = new THREE.Color(innerColor);
-		const outsideColor = new THREE.Color(outerColor);
+		const innerColor = new THREE.Color(insideColor);
+		const outerColor = new THREE.Color(outsideColor);
 
 		const positions = new Float32Array(starCount * 3);
 		const colors = new Float32Array(starCount * 3);
@@ -40,19 +38,23 @@ export default class Galaxy extends THREE.Points {
 		for (let i = 0; i < starCount; i++) {
 			const i3 = i * 3;
 
-			const rad = Math.random() * radius;
-			const spinAngle = rad * spin;
-			const branchAngle = Angle.fragmentToRadians((i % branches) / branches);
+			const pointRadius = Math.random() * radius;
+			const spinAngle = pointRadius * spinAmount;
+			const branchAngle = Angle.fragmentToRadians(
+				(i % branchCount) / branchCount,
+			);
 
 			const offsetX = Random.sign(Random.curve(distribution));
 			const offsetY = Random.sign(Random.curve(distribution) / 6);
 			const offsetZ = Random.sign(Random.curve(distribution));
-			positions[i3] = Math.cos(branchAngle + spinAngle) * rad + offsetX;
+			positions[i3] = Math.cos(branchAngle + spinAngle) * pointRadius + offsetX;
 			positions[i3 + 1] = offsetY;
-			positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * rad + offsetZ;
+			positions[i3 + 2] =
+				Math.sin(branchAngle + spinAngle) * pointRadius + offsetZ;
 
-			const mixedColor = insideColor.clone();
-			mixedColor.lerp(outsideColor, rad / radius);
+			const mixedColor = innerColor.clone();
+			mixedColor.lerp(outerColor, pointRadius / radius);
+
 			colors[i3] = mixedColor.r;
 			colors[i3 + 1] = mixedColor.g;
 			colors[i3 + 2] = mixedColor.b;
@@ -73,6 +75,13 @@ export default class Galaxy extends THREE.Points {
 		});
 		super(geometry, material);
 
+		this.starCount = starCount;
+		this.radius = radius;
+		this.branchCount = branchCount;
+		this.spinAmount = spinAmount;
+		this.distribution = distribution;
+		this.innerColor = innerColor;
+		this.outercolor = outerColor;
 		this.spinSpeed = 0.025;
 	}
 	public update(delta: number) {
@@ -87,15 +96,27 @@ export default class Galaxy extends THREE.Points {
 			this.material.dispose();
 		}
 	}
+
+	public static readonly DEFAULTS = {
+		starCount: 100_000,
+		particleSize: 0.02,
+		radius: 5,
+		branchCount: 5,
+		spinAmount: 0.8,
+		distribution: 3,
+		innerColor: new THREE.Color(0xff6030),
+		outerColor: new THREE.Color(0x1b3984),
+		spinSpeed: 0.025,
+	};
 }
 
-const DEFAULTS: GalaxyParameters = {
-	starCount: 100_000,
-	particleSize: 0.02,
-	radius: 5,
-	branches: 5,
-	spin: 0.8,
-	distribution: 3,
-	innerColor: 0xff6030,
-	outerColor: 0x1b3984,
-};
+export interface GalaxyParameters {
+	starCount: number;
+	particleSize: number;
+	radius: number;
+	branchCount: number;
+	spinAmount: number;
+	distribution: number;
+	innerColor: number;
+	outerColor: number;
+}

@@ -1,5 +1,5 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import Game from './Utils/Game';
+import Game from './utils/Game';
 import Galaxy from './Galaxy';
 import Stars from './Stars';
 
