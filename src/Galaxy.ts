@@ -21,8 +21,8 @@ export default class Galaxy extends THREE.Points {
 
 		const geometry = new THREE.BufferGeometry();
 		const positions = new Float32Array(starCount * 3);
-		const colors = new Float32Array(starCount * 3);
 		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+		const colors = new Float32Array(starCount * 3);
 		geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
 		const material = new THREE.PointsMaterial({
