@@ -4,12 +4,12 @@ function sign(value: number): number {
 function curve(factor: number): number {
 	return Math.pow(Math.random(), factor);
 }
-function between(min: number, max: number): number {
+function floatBetween(min: number, max: number): number {
 	return Math.random() * (max - min) + min;
 }
 const Random = {
 	sign,
 	curve,
-	between,
+	floatBetween,
 };
 export default Random;

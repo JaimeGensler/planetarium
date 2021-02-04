@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Random from './Utils/Random';
+import Random from './utils/Random';
 
 const starCount = 3_000;
 const radiusMin = 22;
@@ -18,7 +18,7 @@ export default class Stars extends THREE.Points {
 			positionHelper
 				.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)
 				.normalize()
-				.multiplyScalar(Random.between(radiusMin, radiusMax));
+				.multiplyScalar(Random.floatBetween(radiusMin, radiusMax));
 			const { x, y, z } = positionHelper;
 
 			const i3 = i * 3;
