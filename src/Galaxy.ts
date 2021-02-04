@@ -12,6 +12,8 @@ export interface GalaxyParameters {
 	innerColor: number;
 	outerColor: number;
 }
+const textureLoader = new THREE.TextureLoader();
+const starTexture = textureLoader.load('/textures/particles/1.png');
 
 export default class Galaxy extends THREE.Points {
 	public spinSpeed: number;
@@ -66,6 +68,8 @@ export default class Galaxy extends THREE.Points {
 			depthWrite: false,
 			blending: THREE.AdditiveBlending,
 			vertexColors: true,
+			alphaMap: starTexture,
+			transparent: true,
 		});
 		super(geometry, material);
 

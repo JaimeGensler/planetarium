@@ -3,15 +3,15 @@ import * as THREE from 'three';
 type FrameListener = (delta: number) => void;
 
 export default class Game {
-	private readonly __sizes = {
-		height: window.innerHeight,
-		width: window.innerWidth,
-	};
-
 	public readonly scene: THREE.Scene;
 	public readonly renderer: THREE.WebGLRenderer;
 	public readonly camera: THREE.PerspectiveCamera;
 
+	private readonly __loadManager = new THREE.LoadingManager();
+	private readonly __sizes = {
+		height: window.innerHeight,
+		width: window.innerWidth,
+	};
 	private __frameListeners: FrameListener[] = [];
 	private __previousTime: number = 0;
 
