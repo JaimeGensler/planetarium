@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 type FrameListener = (delta: number) => void;
 
-export default class Game {
+export default class Engine {
 	public readonly scene: THREE.Scene;
 	public readonly renderer: THREE.WebGLRenderer;
 	public readonly camera: THREE.PerspectiveCamera;

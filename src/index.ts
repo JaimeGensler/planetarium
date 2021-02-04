@@ -1,21 +1,21 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import Game from './utils/Game';
+import Engine from './utils/Engine';
 import Galaxy from './Galaxy';
 import Stars from './Stars';
 
-const game = new Game();
-game.camera.position.set(1, 1.5, 4);
+const engine = new Engine();
+engine.camera.position.set(1, 1.5, 4);
 
-const controls = new OrbitControls(game.camera, game.renderer.domElement);
+const controls = new OrbitControls(engine.camera, engine.renderer.domElement);
 controls.enableDamping = true;
 controls.minDistance = 0.75;
 controls.maxDistance = 12;
-game.addFrameListener(controls.update);
+engine.addFrameListener(controls.update);
 
 const galaxy = new Galaxy();
-game.addDynamicToScene(galaxy);
+engine.addDynamicToScene(galaxy);
 
 const stars = new Stars();
-game.addStaticToScene(stars);
+engine.addStaticToScene(stars);
 
-game.start();
+engine.start();
