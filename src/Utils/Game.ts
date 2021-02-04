@@ -33,7 +33,7 @@ export default class Game {
 			0.1,
 			100,
 		);
-		this.addToScene(this.camera);
+		this.addStaticToScene(this.camera);
 	}
 
 	public start() {
@@ -42,18 +42,27 @@ export default class Game {
 	public addFrameListener(l: FrameListener) {
 		this.__frameListeners.push(l);
 	}
-	public addToScene(...objects: THREE.Object3D[]) {
+	public addStaticToScene(...objects: THREE.Object3D[]) {
 		this.scene.add(...objects);
+	}
+	public addDynamicToScene(...objects: THREE.Object3D[]) {
+		objects.forEach(object => {
+			if ('update' in object && typeof object['update'] === 'function') {
+				//@ts-ignore: It's been checked lol
+				this.addFrameListener(object.update.bind(object));
+				this.addStaticToScene(object);
+			}
+		});
 	}
 
 	// ====== Private API =====
 	private __tick(frameTime: number) {
-		const delta = frameTime - this.__previousTime;
+		const delta = (frameTime - this.__previousTime) / 1000;
 		this.__previousTime = frameTime;
 
 		this.__frameListeners.forEach(l => l(delta));
 		this.renderer.render(this.scene, this.camera);
-		window.requestAnimationFrame(this.__tick);
+		window.requestAnimationFrame(this.__tick.bind(this));
 	}
 	private __handleResize() {
 		this.__sizes.height = window.innerHeight;
