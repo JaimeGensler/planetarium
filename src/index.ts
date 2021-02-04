@@ -12,10 +12,15 @@ controls.minDistance = 0.75;
 controls.maxDistance = 12;
 engine.addFrameListener(controls.update);
 
-const galaxy = new Galaxy();
+const [galaxyStar, bgStar] = engine.loadTextures(
+	'/textures/particles/1.png',
+	'/textures/particles/8.png',
+);
+
+const galaxy = new Galaxy({ starTexture: galaxyStar });
 engine.addDynamicToScene(galaxy);
 
-const stars = new Stars();
+const stars = new Stars({ starTexture: bgStar });
 engine.addStaticToScene(stars);
 
 engine.start();

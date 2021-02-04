@@ -6,11 +6,10 @@ const radiusMin = 22;
 const radiusMax = 32;
 const starSize = 0.33;
 
-const textureLoader = new THREE.TextureLoader();
-const starTexture = textureLoader.load('/textures/particles/8.png');
-
+type StarsParameters = { starTexture: THREE.Texture };
 export default class Stars extends THREE.Points {
-	public constructor() {
+	public constructor(settings?: StarsParameters) {
+		const starTexture = settings?.starTexture;
 		const positionHelper = new THREE.Vector3();
 
 		const positions = new Float32Array(starCount * 3);
@@ -35,8 +34,9 @@ export default class Stars extends THREE.Points {
 			sizeAttenuation: true,
 			depthWrite: false,
 			blending: THREE.AdditiveBlending,
+
 			alphaMap: starTexture,
-			transparent: true,
+			transparent: !!starTexture,
 		});
 		super(geometry, material);
 	}

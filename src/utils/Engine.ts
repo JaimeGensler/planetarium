@@ -8,6 +8,9 @@ export default class Engine {
 	public readonly camera: THREE.PerspectiveCamera;
 
 	private readonly __loadManager = new THREE.LoadingManager();
+	private readonly __textureLoader = new THREE.TextureLoader(
+		this.__loadManager,
+	);
 	private readonly __sizes = {
 		height: window.innerHeight,
 		width: window.innerWidth,
@@ -53,6 +56,12 @@ export default class Engine {
 				this.addStaticToScene(object);
 			}
 		});
+	}
+	public loadTextures(...files: string[]) {
+		if (files.length === 0) {
+			throw new Error('Must provide at least one file to load!');
+		}
+		return files.map(file => this.__textureLoader.load(file));
 	}
 
 	// ====== Private API =====

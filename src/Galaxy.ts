@@ -2,10 +2,7 @@ import * as THREE from 'three';
 import Angle from './utils/Angle';
 import Random from './utils/Random';
 
-const textureLoader = new THREE.TextureLoader();
-const starTexture = textureLoader.load('/textures/particles/1.png');
-
-type GalaxyParameters = typeof Galaxy.DEFAULTS;
+type GalaxyParameters = { starTexture: THREE.Texture } & typeof Galaxy.DEFAULTS;
 export default class Galaxy extends THREE.Points {
 	public spinSpeed: number;
 	public starCount: number;
@@ -20,6 +17,7 @@ export default class Galaxy extends THREE.Points {
 	public constructor(settings?: Partial<GalaxyParameters>) {
 		const starCount = settings?.starCount ?? Galaxy.DEFAULTS.starCount;
 		const starSize = settings?.starSize ?? Galaxy.DEFAULTS.starSize;
+		const starTexture = settings?.starTexture;
 
 		const geometry = new THREE.BufferGeometry();
 		const positions = new Float32Array(starCount * 3);
@@ -33,8 +31,9 @@ export default class Galaxy extends THREE.Points {
 			depthWrite: false,
 			blending: THREE.AdditiveBlending,
 			vertexColors: true,
+
 			alphaMap: starTexture,
-			transparent: true,
+			transparent: !!starTexture,
 		});
 
 		super(geometry, material);
