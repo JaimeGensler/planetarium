@@ -15,12 +15,15 @@ export default class Stars extends THREE.Points {
 		const geometry = new THREE.BufferGeometry();
 		const positions = new Float32Array(starCount * 3);
 		geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+		const colors = new Float32Array(starCount * 3);
+		geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
 		const material = new THREE.PointsMaterial({
 			size: starSize,
 			sizeAttenuation: true,
 			depthWrite: false,
 			blending: THREE.AdditiveBlending,
+			vertexColors: true,
 
 			alphaMap: starTexture,
 			transparent: !!starTexture,
@@ -36,6 +39,7 @@ export default class Stars extends THREE.Points {
 	private __create() {
 		const positionHelper = new THREE.Vector3();
 		const positions = this.geometry.attributes.position.array as Float32Array;
+		const colors = this.geometry.attributes.color.array as Float32Array;
 		for (let i = 0; i < this.starCount; i++) {
 			positionHelper
 				.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)
@@ -47,6 +51,10 @@ export default class Stars extends THREE.Points {
 			positions[i3] = x;
 			positions[i3 + 1] = y;
 			positions[i3 + 2] = z;
+
+			colors[i3] = Random.curve(1 / 5);
+			colors[i3 + 1] = 0.85;
+			colors[i3 + 2] = Random.curve(1 / 5);
 		}
 	}
 
