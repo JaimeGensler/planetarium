@@ -48,7 +48,13 @@ export default class Engine {
 	}
 	public addStaticToScene(...objects: THREE.Object3D[]) {
 		objects.forEach(object => {
-			object.matrixAutoUpdate = false;
+			if (object.matrixAutoUpdate) {
+				console.warn(
+					'An object passed to Engine.addStaticToScene did not have matrixAutoUpdate disabled. Engine disabled autoupdate. Object:',
+					object,
+				);
+				object.matrixAutoUpdate = false;
+			}
 			this.__addObjectToScene(object);
 		});
 	}
