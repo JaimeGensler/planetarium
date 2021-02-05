@@ -7,9 +7,9 @@ export default class Engine {
 	public readonly renderer: THREE.WebGLRenderer;
 	public readonly camera: THREE.PerspectiveCamera;
 
-	private readonly __loadManager = new THREE.LoadingManager();
+	private readonly __loadingManager = new THREE.LoadingManager();
 	private readonly __textureLoader = new THREE.TextureLoader(
-		this.__loadManager,
+		this.__loadingManager,
 	);
 	private readonly __sizes = {
 		height: window.innerHeight,
@@ -36,7 +36,8 @@ export default class Engine {
 			0.1,
 			100,
 		);
-		this.addStaticToScene(this.camera);
+		this.addDynamicToScene(this.camera);
+		this.__setupLoadingManager();
 	}
 
 	public start() {
@@ -46,15 +47,18 @@ export default class Engine {
 		this.__frameListeners.push(l);
 	}
 	public addStaticToScene(...objects: THREE.Object3D[]) {
-		this.scene.add(...objects);
+		objects.forEach(object => {
+			object.matrixAutoUpdate = false;
+			this.__addObjectToScene(object);
+		});
 	}
 	public addDynamicToScene(...objects: THREE.Object3D[]) {
 		objects.forEach(object => {
 			if ('update' in object && typeof object['update'] === 'function') {
-				//@ts-ignore: It's been checked lol
+				//@ts-ignore: It's been verified that this object has an update function
 				this.addFrameListener(object.update.bind(object));
-				this.addStaticToScene(object);
 			}
+			this.__addObjectToScene(object);
 		});
 	}
 	public loadTextures(...files: string[]) {
@@ -65,6 +69,9 @@ export default class Engine {
 	}
 
 	// ====== Private API =====
+	private __addObjectToScene(...objects: THREE.Object3D[]) {
+		this.scene.add(...objects);
+	}
 	private __tick(frameTime: number) {
 		const delta = (frameTime - this.__previousTime) / 1000;
 		this.__previousTime = frameTime;
@@ -82,5 +89,13 @@ export default class Engine {
 
 		this.renderer.setSize(this.__sizes.width, this.__sizes.height);
 		this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+	}
+	private __setupLoadingManager() {
+		this.__loadingManager.onLoad = () => {
+			console.log('LOAD_MANAGER: All assets finished loading.');
+		};
+		this.__loadingManager.onError = url => {
+			console.error(`LOAD_MANAGER: Could not load "${url}"`);
+		};
 	}
 }
