@@ -1,13 +1,15 @@
 import * as THREE from 'three';
-import Random from './utils/Random';
+import Random from '../utils/Random';
 
-type StarsParameters = { starTexture: THREE.Texture } & typeof Stars.DEFAULTS;
+type StarsParameters = Partial<
+	{ starTexture: THREE.Texture } & typeof Stars.DEFAULTS
+>;
 export default class Stars extends THREE.Points {
 	public starCount: number;
 	public radiusMin: number;
 	public radiusMax: number;
 	public starSize: number;
-	public constructor(settings?: Partial<StarsParameters>) {
+	public constructor(settings?: StarsParameters) {
 		const starTexture = settings?.starTexture;
 		const starCount = settings?.starCount ?? Stars.DEFAULTS.starCount;
 		const starSize = settings?.starSize ?? Stars.DEFAULTS.starSize;

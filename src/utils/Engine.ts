@@ -1,8 +1,11 @@
 import * as THREE from 'three';
 
 type FrameListener = (delta: number) => void;
+type Listener = () => void;
 
 export default class Engine {
+	public static fixedUpdateInterval = 0.02;
+
 	public readonly scene: THREE.Scene;
 	public readonly renderer: THREE.WebGLRenderer;
 	public readonly camera: THREE.PerspectiveCamera;
@@ -16,6 +19,7 @@ export default class Engine {
 		width: window.innerWidth,
 	};
 	private __frameListeners: FrameListener[] = [];
+	private __fixedListeners: Listener[] = [];
 	private __previousTime: number = 0;
 
 	public constructor() {
@@ -36,36 +40,41 @@ export default class Engine {
 			0.1,
 			100,
 		);
-		this.addDynamicToScene(this.camera);
+		this.scene.add(this.camera);
 		this.__setupLoadingManager();
+		this.__tick = this.__tick.bind(this);
 	}
 
 	public start() {
 		this.__tick(0);
+		this.__startFixedUpdates();
 	}
-	public addFrameListener(l: FrameListener) {
-		this.__frameListeners.push(l);
-	}
-	public addStaticToScene(...objects: THREE.Object3D[]) {
+	public addToScene(...objects: THREE.Object3D[]) {
 		objects.forEach(object => {
-			if (object.matrixAutoUpdate) {
-				console.warn(
-					'An object passed to Engine.addStaticToScene did not have matrixAutoUpdate disabled. Engine disabled autoupdate. Object:',
-					object,
-				);
-				object.matrixAutoUpdate = false;
-			}
-			this.__addObjectToScene(object);
-		});
-	}
-	public addDynamicToScene(...objects: THREE.Object3D[]) {
-		objects.forEach(object => {
+			let mayUpdate = false;
 			if ('update' in object && typeof object['update'] === 'function') {
-				//@ts-ignore: It's been verified that this object has an update function
-				this.addFrameListener(object.update.bind(object));
+				mayUpdate = true;
+				//@ts-ignore: Checked
+				this.__frameListeners.push(object.update.bind(object));
 			}
-			this.__addObjectToScene(object);
+			if (
+				'fixedUpdate' in object &&
+				typeof object['fixedUpdate'] === 'function'
+			) {
+				mayUpdate = true;
+				//@ts-ignore: Checked
+				this.__fixedListeners.push(object.fixedUpdate.bind(object));
+			}
+			if (!mayUpdate && object.matrixAutoUpdate) {
+				object.matrixAutoUpdate = false;
+				console.warn('Engine disabled "matrixAutoUpdate" on', object);
+			}
+			console.log('about to add to scene');
+			this.scene.add(object);
 		});
+	}
+	public addFrameListener(l: Listener) {
+		this.__frameListeners.push(l);
 	}
 	public loadTextures(...files: string[]) {
 		if (files.length === 0) {
@@ -75,16 +84,13 @@ export default class Engine {
 	}
 
 	// ====== Private API =====
-	private __addObjectToScene(...objects: THREE.Object3D[]) {
-		this.scene.add(...objects);
-	}
 	private __tick(frameTime: number) {
 		const delta = (frameTime - this.__previousTime) / 1000;
 		this.__previousTime = frameTime;
 
 		this.__frameListeners.forEach(l => l(delta));
 		this.renderer.render(this.scene, this.camera);
-		window.requestAnimationFrame(this.__tick.bind(this));
+		window.requestAnimationFrame(this.__tick);
 	}
 	private __handleResize() {
 		this.__sizes.height = window.innerHeight;
@@ -103,5 +109,11 @@ export default class Engine {
 		this.__loadingManager.onError = url => {
 			console.error(`LOAD_MANAGER: Could not load "${url}"`);
 		};
+	}
+	private __startFixedUpdates() {
+		const interval = Engine.fixedUpdateInterval * 1000;
+		setInterval(() => {
+			this.__fixedListeners.forEach(l => l());
+		}, interval);
 	}
 }

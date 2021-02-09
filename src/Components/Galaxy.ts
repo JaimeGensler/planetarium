@@ -1,8 +1,10 @@
 import * as THREE from 'three';
-import Angle from './utils/Angle';
-import Random from './utils/Random';
+import Angle from '../utils/Angle';
+import Random from '../utils/Random';
 
-type GalaxyParameters = { starTexture: THREE.Texture } & typeof Galaxy.DEFAULTS;
+type GalaxyParameters = Partial<
+	{ starTexture: THREE.Texture } & typeof Galaxy.DEFAULTS
+>;
 export default class Galaxy extends THREE.Points {
 	public spinSpeed: number;
 	public starCount: number;
@@ -14,7 +16,7 @@ export default class Galaxy extends THREE.Points {
 	public innerColor: THREE.Color;
 	public outerColor: THREE.Color;
 
-	public constructor(settings?: Partial<GalaxyParameters>) {
+	public constructor(settings?: GalaxyParameters) {
 		const starCount = settings?.starCount ?? Galaxy.DEFAULTS.starCount;
 		const starSize = settings?.starSize ?? Galaxy.DEFAULTS.starSize;
 		const starTexture = settings?.starTexture;
@@ -84,9 +86,11 @@ export default class Galaxy extends THREE.Points {
 			colors[i3 + 1] = mixedColor.g;
 			colors[i3 + 2] = mixedColor.b;
 		}
+		this.updateMatrix();
 	}
-	public update(delta: number) {
-		this.rotation.y += this.spinSpeed * delta;
+
+	public fixedUpdate() {
+		this.rotation.y += this.spinSpeed * 0.02;
 	}
 
 	public dispose() {
@@ -104,7 +108,7 @@ export default class Galaxy extends THREE.Points {
 		radius: 5,
 		branchCount: 5,
 		spinAmount: 0.8,
-		distribution: 3,
+		distribution: 2.5,
 		innerColor: new THREE.Color(0xff6030),
 		outerColor: new THREE.Color(0x1b3984),
 		spinSpeed: 0.025,
